@@ -2,24 +2,50 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
-def get_mnist_loaders(data_dir="./data", batch_size=128, num_workers=0):
-    transform = transforms.Compose(
-        [transforms.ToTensor(),]
-    )
+DATASET_INFO = {
+    'mnist': {'channels': 1, 'height': 28, 'width': 28},
+    'cifar10': {'channels': 3, 'height': 32, 'width': 32},
+}
 
-    train_dataset = torchvision.datasets.MNIST(
-        root=data_dir,
-        train=True,
-        download=True,
-        transform=transform,
-    )
+def get_input_dim(dataset):
+    info = DATASET_INFO[dataset]
+    return info['channels'] * info['height'] * info['width']
 
-    test_dataset = torchvision.datasets.MNIST(
-        root=data_dir,
-        train=False,
-        download=True,
-        transform=transform,
-    )
+def get_dataloaders(dataset='mnist', data_dir="./data", batch_size=128, num_workers=0):
+    if dataset == 'mnist':
+        transform = transforms.Compose([transforms.ToTensor(),])
+
+        train_dataset = torchvision.datasets.MNIST(
+            root=data_dir,
+            train=True,
+            download=True,
+            transform=transform,
+        )
+
+        test_dataset = torchvision.datasets.MNIST(
+            root=data_dir,
+            train=False,
+            download=True,
+            transform=transform,
+        )
+    elif dataset == 'cifar10':
+        transform = transforms.Compose([transforms.ToTensor(),])
+
+        train_dataset = torchvision.datasets.CIFAR10(
+            root=data_dir,
+            train=True,
+            download=True,
+            transform=transform,
+        )
+        
+        test_dataset = torchvision.datasets.CIFAR10(
+            root=data_dir,
+            train=False,
+            download=True,
+            transform=transform,
+        )
+    else:
+        raise ValueError(f"Unknown dataset: {dataset}")
 
     train_loader = DataLoader(
         train_dataset,

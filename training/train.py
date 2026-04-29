@@ -10,18 +10,28 @@ import matplotlib
 matplotlib.use('Agg') # Switches to non-interactive backend, saves to files instead of opening windows
 import matplotlib.pyplot as plt
 
-from training.dataloader import get_mnist_loaders
+from training.dataloader import get_dataloaders, get_input_dim, DATASET_INFO
 
 def load_model(config):
+    dataset = config['dataset']
+    info = DATASET_INFO[dataset]
+    input_dim = get_input_dim(dataset)
     model_name = config['model']
 
     if model_name == 'v1_linear_ae':
         from models.v1_linear_ae import LinearAutoencoder
-        return LinearAutoencoder(latent_dim=config['latent_dim'])
+        return LinearAutoencoder(
+            input_dim=input_dim,
+            latent_dim=config['latent_dim'],
+            channels=info['channels'],
+            height=info['height'],
+            width=info['width']
+        )
+    
     else:
         raise ValueError(f"Unknown model: {model_name}")
 
-def save_reconstructions(model, test_loader, device, path):
+def save_reconstructions(model, test_loader, device, path, dataset):
     model.eval()
     images, _ = next(iter(test_loader))
     images = images[:8].to(device)
@@ -29,12 +39,21 @@ def save_reconstructions(model, test_loader, device, path):
     with torch.no_grad():
         reconstructions, _ = model(images)
 
-    fig, axes = plt.subplots(2, 8, figsize=(12, 3))
+    fig, axes = plt.subplots(2, 8, figsize=(16, 4))
 
     for i in range(8):
-        axes[0, i].imshow(images[i].cpu().squeeze(), cmap='gray')
+        if dataset == 'mnist':
+            axes[0, i].imshow(images[i].cpu().squeeze(), cmap='gray')
+            axes[1, i].imshow(reconstructions[i].cpu().squeeze(), cmap='gray')
+
+        elif dataset == 'cifar10':
+            axes[0, i].imshow(images[i].cpu().permute(1, 2, 0))
+            axes[1, i].imshow(reconstructions[i].cpu().permute(1, 2, 0))
+
+        else:
+            raise ValueError(f"Unsupported dataset for visualization: {dataset}")
+
         axes[0, i].axis('off')
-        axes[1, i].imshow(reconstructions[i].cpu().squeeze(), cmap='gray')
         axes[1, i].axis('off')
     
     axes[0, 0].set_ylabel('Original', fontsize=8)
@@ -51,7 +70,7 @@ def train(config):
     os.makedirs(config['save_dir'], exist_ok=True)
     os.makedirs(config['results_dir'], exist_ok=True)
 
-    train_loader, test_loader = get_mnist_loaders(batch_size=config['batch_size'])
+    train_loader, test_loader = get_dataloaders(dataset=config['dataset'], batch_size=config['batch_size'])
     model = load_model(config).to(device)
     optimiser = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
 
@@ -77,17 +96,20 @@ def train(config):
         train_losses.append(avg_loss)
         print(f"Epoch {epoch}/{config['epochs']}: Loss is {avg_loss:.6f}")
 
-    torch.save(model.state_dict(), os.path.join(config['save_dir'], 'model.pt'))
+    filename = f"{config['dataset']}.pt"
+    torch.save(model.state_dict(), os.path.join(config['save_dir'], filename))
 
     plt.figure()
     plt.plot(train_losses)
     plt.xlabel('Epoch')
     plt.ylabel('MSE Loss')
     plt.title('Training Loss')
-    plt.savefig(os.path.join(config['results_dir'], 'loss_curve.png'))
+    filename = f"{config['dataset']}_loss_curve.png"
+    plt.savefig(os.path.join(config['results_dir'], filename))
     plt.close()
 
-    save_reconstructions(model, test_loader, device, os.path.join(config['results_dir'], 'reconstructions.png'))
+    filename = f"{config['dataset']}_reconstructions.png"
+    save_reconstructions(model, test_loader, device, os.path.join(config['results_dir'], filename), config['dataset'])
 
     print("Training complete.")
     print("Model saved to", config['save_dir'])

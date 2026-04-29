@@ -1,4 +1,5 @@
 model: v1_linear_ae
+dataset: cifar10
 latent_dim: 32
 epochs: 20
 batch_size: 128

@@ -1,12 +1,16 @@
 import torch.nn as nn
 
 class LinearAutoencoder(nn.Module):
-    def __init__(self, latent_dim=32):
+    def __init__(self, input_dim=784, latent_dim=32, channels=1, height=28, width=28):
         super().__init__()
+        self.input_dim = input_dim
         self.latent_dim = latent_dim
+        self.channels = channels
+        self.height = height
+        self.width = width
 
         self.encoder = nn.Sequential(
-            nn.Linear(784, 256),
+            nn.Linear(input_dim, 256),
             nn.Linear(256, 64),
             nn.Linear(64, latent_dim),
         )
@@ -14,7 +18,7 @@ class LinearAutoencoder(nn.Module):
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, 64),
             nn.Linear(64, 256),
-            nn.Linear(256, 784),
+            nn.Linear(256, input_dim),
             nn.Sigmoid(),
         )
     
@@ -24,7 +28,7 @@ class LinearAutoencoder(nn.Module):
     
     def decode(self, x):
         x = self.decoder(x)
-        return x.view(x.size(0), 1, 28, 28)
+        return x.view(x.size(0), self.channels, self.height, self.width)
     
     def forward(self, x):
         z = self.encode(x)

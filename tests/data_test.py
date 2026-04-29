@@ -2,10 +2,10 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from training.dataloader import get_mnist_loaders
+from training.dataloader import get_dataloaders
 
 if __name__ == '__main__':
-    train_loader, test_loader = get_mnist_loaders()
+    train_loader, test_loader = get_dataloaders()
 
     images, labels = next(iter(train_loader))
     print("Train batch shape:", images.shape)
