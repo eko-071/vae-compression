@@ -1,0 +1,8 @@
+model: v1_linear_ae
+dataset: celeba
+latent_dim: 128
+epochs: 30
+batch_size: 128
+learning_rate: 0.0005
+save_dir: ./checkpoints/v1_linear_ae
+results_dir: ./results/v1_linear_ae

@@ -1,0 +1,8 @@
+model: v1_linear_ae
+dataset: mnist
+latent_dim: 32
+epochs: 20
+batch_size: 128
+learning_rate: 0.001
+save_dir: ./checkpoints/v1_linear_ae
+results_dir: ./results/v1_linear_ae
