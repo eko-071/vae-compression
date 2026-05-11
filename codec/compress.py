@@ -11,7 +11,10 @@ def compress_with_model(model, image_tensor):
     """
     model.eval()
     with torch.no_grad():
-        z = model.encode(image_tensor)
+        if hasattr(model, "encode_deterministic"):
+            z = model.encode_deterministic(image_tensor)
+        else:
+            z = model.encode(image_tensor)
     
     latent_np = z.cpu().numpy().astype(np.float32)
     latent_bytes = latent_np.tobytes()

@@ -33,7 +33,7 @@ def train(config):
 
     model = load_model(config).to(device)
     optimiser = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
-    beta = config.get('beta', 1.0)
+    beta = config.get('beta', 1)
 
     train_losses = []
 
