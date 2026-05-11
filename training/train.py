@@ -47,9 +47,33 @@ def train(config):
 
             if model.model_type == 'vae':
                 reconstructions, mu, logvar = model(images)
+
                 loss, recon_loss, kl_loss = vae_loss(
-                    reconstructions, images, mu, logvar, beta
+                    reconstructions,
+                    images,
+                    mu,
+                    logvar,
+                    beta
                 )
+
+            elif config['model'] == 'v1_linear_ae':
+
+                reconstructions, _ = model(images)
+
+                loss = nn.functional.mse_loss(
+                    reconstructions,
+                    images
+                )
+
+            elif config['model'] == 'v2_convolutional_ae':
+
+                reconstructions = model(images)
+
+                loss = nn.functional.mse_loss(
+                    reconstructions,
+                    images
+                )
+
             else:
                 reconstructions, _ = model(images)
                 loss = nn.functional.mse_loss(reconstructions, images)

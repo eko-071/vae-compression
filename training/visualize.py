@@ -22,8 +22,12 @@ def save_reconstructions(model, test_loader, device, path, dataset, config):
     info = DATASET_INFO[dataset]
 
     with torch.no_grad():
-        output = model(images)
-        reconstructions = output[0]
+        outputs = model(images)
+
+        if isinstance(outputs, tuple):
+            reconstructions = outputs[0]
+        else:
+            reconstructions = outputs
 
     fig, axes = plt.subplots(2, 8, figsize=(16, 4))
 
