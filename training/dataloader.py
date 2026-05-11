@@ -5,7 +5,7 @@ from PIL import Image
 import os
 
 DATASET_INFO = {
-    'mnist': {'channels': 1, 'height': 28, 'width': 28},
+    'mnist': {'channels': 1, 'height': 28, 'width': 28, 'size':28},
     'cifar10': {'channels': 3, 'height': 32, 'width': 32},
     'celeba': {'channels': 3, 'height': 64, 'width': 64}
 }
