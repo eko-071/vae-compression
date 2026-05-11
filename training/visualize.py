@@ -1,12 +1,9 @@
-import os
 import torch
-
 import matplotlib
 matplotlib.use('Agg') # Switches to non-interactive backend, saves to files instead of opening windows
 import matplotlib.pyplot as plt
 
 from training.dataloader import DATASET_INFO
-
 
 def save_loss_curve(train_losses, path):
     plt.figure()
@@ -18,38 +15,15 @@ def save_loss_curve(train_losses, path):
     plt.savefig(path)
     plt.close()
 
-
 def save_reconstructions(model, test_loader, device, path, dataset, config):
-    model_type = config["model"]
     model.eval()
     images, _ = next(iter(test_loader))
     images = images[:8].to(device)
     info = DATASET_INFO[dataset]
 
     with torch.no_grad():
-        if model_type == "v3_vae":
-            reconstructions, mu, logvar = model(images)
-
-        elif model_type == "v1_linear_ae":
-            reconstructions = model(images)
-
-        elif model_type == "v2_convolutional_ae":
-            reconstructions = model(images)
-            
-    if model_type == "v1_linear_ae":
-        images = images.view(
-            -1,
-            info['channels'],
-            info['size'],
-            info['size']
-        )
-
-        reconstructions = reconstructions.view(
-            -1,
-            info['channels'],
-            info['size'],
-            info['size']
-        )
+        output = model(images)
+        reconstructions = output[0]
 
     fig, axes = plt.subplots(2, 8, figsize=(16, 4))
 

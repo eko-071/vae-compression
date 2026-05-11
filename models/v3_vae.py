@@ -2,6 +2,7 @@ import torch.nn as nn
 import torch
 
 class VariationalAutoencoder(nn.Module):
+    model_type = "vae"
     def __init__(self, input_dim=784, latent_dim=32, channels=1, height=28, width=28):
         super().__init__()
         self.input_dim = input_dim
@@ -13,7 +14,6 @@ class VariationalAutoencoder(nn.Module):
         self.encoder = nn.Sequential(
             nn.Linear(input_dim, 256),
             nn.ReLU(),
-
             nn.Linear(256, 64),
             nn.ReLU(),
         )
@@ -23,7 +23,9 @@ class VariationalAutoencoder(nn.Module):
 
         self.decoder = nn.Sequential(
             nn.Linear(latent_dim, 64),
+            nn.ReLU(),
             nn.Linear(64, 256),
+            nn.ReLU(),
             nn.Linear(256, input_dim),
             nn.Sigmoid(),
         )
@@ -31,11 +33,14 @@ class VariationalAutoencoder(nn.Module):
     def encode(self, x):
         x = x.view(x.size(0), -1)
         h = self.encoder(x)
-
         mu = self.fc_mu(h)
         logvar = self.fc_logvar(h)
 
         return mu, logvar
+    
+    def encode_deterministic(self, x):
+        mu, _ = self.encode(x)
+        return mu
     
     def decode(self, x):
         x = self.decoder(x)
@@ -43,16 +48,13 @@ class VariationalAutoencoder(nn.Module):
     
     def reparameterize(self, mu, logvar):
         std = torch.exp(0.5 * logvar)
-
         eps = torch.randn_like(std)
 
         return mu + eps * std
     
     def forward(self, x):
         mu, logvar = self.encode(x)
-
         z = self.reparameterize(mu, logvar)
-
         reconstruction = self.decode(z)
 
         return reconstruction, mu, logvar

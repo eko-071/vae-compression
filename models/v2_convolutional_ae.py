@@ -3,15 +3,8 @@ import torch.nn as nn
 
 
 class ConvolutionalAutoencoder(nn.Module):
-
-    def __init__(
-        self,
-        latent_dim=32,
-        channels=1,
-        height=28,
-        width=28
-    ):
-
+    model_type = "autoencoder"
+    def __init__(self, latent_dim=32, channels=1, height=28, width=28):
         super().__init__()
 
         self.latent_dim = latent_dim
@@ -21,7 +14,6 @@ class ConvolutionalAutoencoder(nn.Module):
 
         # Encoder
         self.encoder = nn.Sequential(
-
             # [B, 1, 28, 28]
             nn.Conv2d(
                 in_channels=channels,
@@ -30,10 +22,8 @@ class ConvolutionalAutoencoder(nn.Module):
                 stride=2,
                 padding=1
             ),
-
             # [B, 32, 14, 14]
             nn.ReLU(),
-
             nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
@@ -41,7 +31,6 @@ class ConvolutionalAutoencoder(nn.Module):
                 stride=2,
                 padding=1
             ),
-
             # [B, 64, 7, 7]
             nn.ReLU(),
         )
@@ -65,7 +54,6 @@ class ConvolutionalAutoencoder(nn.Module):
 
         # Decoder
         self.decoder = nn.Sequential(
-
             nn.ConvTranspose2d(
                 in_channels=64,
                 out_channels=32,
@@ -74,10 +62,8 @@ class ConvolutionalAutoencoder(nn.Module):
                 padding=1,
                 output_padding=1
             ),
-
             # [B, 32, 14, 14]
             nn.ReLU(),
-
             nn.ConvTranspose2d(
                 in_channels=32,
                 out_channels=channels,
@@ -86,35 +72,28 @@ class ConvolutionalAutoencoder(nn.Module):
                 padding=1,
                 output_padding=1
             ),
-
             # [B, 1, 28, 28]
             nn.Sigmoid()
         )
 
     def encode(self, x):
         x = self.encoder(x)
-
-        self.feature_shape = x.shape  # 👈 SAVE THIS
-
         x = x.view(x.size(0), -1)
-
         z = self.fc_encoder(x)
+
         return z
 
     def decode(self, z):
-
         x = self.fc_decoder(z)
-
-        x = x.view(self.feature_shape)
-
+        conv_h = self.height // 4
+        conv_w = self.width // 4
+        x = x.view(z.size(0), 64, conv_h, conv_w)
         x = self.decoder(x)
 
         return x
 
     def forward(self, x):
-
         z = self.encode(x)
-
         reconstruction = self.decode(z)
-
-        return reconstruction
+        
+        return reconstruction, z

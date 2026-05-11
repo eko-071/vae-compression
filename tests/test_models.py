@@ -3,8 +3,10 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import torch
+import yaml
+import argparse
 from training.dataloader import get_input_dim, DATASET_INFO
-from models.v1_linear_ae import LinearAutoencoder
+from training.model_loader import load_model, load_model_from_checkpoint
 
 def test_output_shape(model, dataset):
     info = DATASET_INFO[dataset]
@@ -38,38 +40,24 @@ def test_checkpoint_loads(model, checkpoint_path):
     except Exception as e:
         print(f"Checkpoint test failed: {e}")
 
-if __name__ == "__main__":
-    print("Testing V1: Linear Autoencoder")
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, required=True)
+    args = parser.parse_args()
 
-    print()
-    print("Testing MNIST:")
-    info = DATASET_INFO['mnist']
-    model = LinearAutoencoder(
-        input_dim=get_input_dim('mnist'),
-        latent_dim=32,
-        channels=info['channels'],
-        height=info['height'],
-        width=info['width']
-    )
+    with open(args.config, 'r') as f:
+        config = yaml.safe_load(f)
 
-    test_output_shape(model, 'mnist')
-    test_output_range(model, 'mnist')
-    test_checkpoint_loads(model, './checkpoints/v1_linear_ae/mnist_ld32.pt')
-    
-    print()
-    print("Testing CIFAR-10:")
-    info = DATASET_INFO['cifar10']
-    model = LinearAutoencoder(
-        input_dim=get_input_dim('cifar10'),
-        latent_dim=32,
-        channels=info['channels'],
-        height=info['height'],
-        width=info['width']
-    )
+    dataset = config['dataset']
+    model_name = config['model']
+    latent_dim = config['latent_dim']
+    checkpoint = os.path.join(config['save_dir'], f"{dataset}_ld{latent_dim}.pt")
 
-    test_output_shape(model, 'cifar10')
-    test_output_range(model, 'cifar10')
-    test_checkpoint_loads(model, './checkpoints/v1_linear_ae/cifar10_ld32.pt')
+    print(f"Testing {model_name} | {dataset} | latent_dim={latent_dim}")
 
-    print()
-    print("All tests done.")
+    model = load_model(config)
+    test_output_shape(model, dataset)
+    test_output_range(model, dataset)
+    test_checkpoint_loads(model, checkpoint)
+
+    print("\nAll tests done.")

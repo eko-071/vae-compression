@@ -1,6 +1,7 @@
 import torch.nn as nn
 
 class LinearAutoencoder(nn.Module):
+    model_type = "autoencoder"
     def __init__(self, input_dim=784, latent_dim=32, channels=1, height=28, width=28):
         super().__init__()
         self.input_dim = input_dim
