@@ -1,0 +1,8 @@
+model: v2_convolutional_ae
+dataset: cifar10
+latent_dim: 32
+epochs: 20
+batch_size: 128
+learning_rate: 0.001
+save_dir: ./checkpoints/v2_convolutional_ae
+results_dir: ./results/v2_convolutional_ae

@@ -1,0 +1,8 @@
+model: v3_vae
+dataset: mnist
+latent_dim: 32
+epochs: 20
+batch_size: 128
+learning_rate: 0.001
+save_dir: ./checkpoints/v3_vae
+results_dir: ./results/v3_vae
