@@ -1,0 +1,8 @@
+dataset: mnist
+
+results_dir: ./results/jpeg
+
+num_images: 100
+
+quality_min: 1
+quality_max: 95

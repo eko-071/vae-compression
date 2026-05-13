@@ -14,8 +14,9 @@ from training.visualize import save_loss_curve, save_reconstructions
 from training.model_loader import load_model
 
 def vae_loss(reconstructions, images, mu, logvar, beta=1.0):
-    recon_loss = nn.functional.mse_loss(reconstructions, images, reduction='mean')
-    kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
+    recon_loss = nn.functional.binary_cross_entropy(reconstructions,images,reduction='sum') / images.size(0)
+    # kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
+    kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=1).mean()
     total_loss = recon_loss + beta * kl_loss
     return total_loss, recon_loss, kl_loss
 
