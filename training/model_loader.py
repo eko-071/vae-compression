@@ -39,6 +39,15 @@ def load_model(config):
             height=info['height'],
             width=info['width'],
         )
+    
+    elif model_name == 'v4_conv_vae':
+        from models.v4_conv_vae import ConvolutionalVAE
+        return ConvolutionalVAE(
+            latent_dim=config['latent_dim'],
+            channels=info['channels'],
+            height=info['height'],
+            width=info['width'],
+        )
 
     else:
         raise ValueError(f"Unknown model: {model_name}")
