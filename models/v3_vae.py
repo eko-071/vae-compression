@@ -31,7 +31,7 @@ class VariationalAutoencoder(nn.Module):
         )
     
     def encode(self, x):
-        x = x.view(x.size(0), -1)
+        x = x.reshape(x.size(0), -1)
         h = self.encoder(x)
         mu = self.fc_mu(h)
         logvar = self.fc_logvar(h)
