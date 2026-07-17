@@ -19,27 +19,30 @@ from evaluation.benchmark_model import benchmark_model
 
 def sweep_latent_dims(config):
 
-    latent_dims = [4, 8, 16, 32, 64]
-
-    # Optional: add 128 for CelebA
-    if config['dataset'].lower() == 'celeba':
-        latent_dims.append(128)
+    latent_dims = [2, 4, 8, 16, 32, 64, 128, 256, 512]
 
     print("\nStarting latent dimension sweep...\n")
 
     for latent_dim in latent_dims:
-
         config['latent_dim'] = latent_dim
 
+        checkpoint_path = os.path.join(
+            config['save_dir'],
+            f"{config['dataset']}_ld{latent_dim}.pt",
+        )
+        if os.path.exists(checkpoint_path):
+            print(f"  Skipping ld={latent_dim} — checkpoint exists")
+            continue
+
         print("\n" + "=" * 60)
-        print(f"Running latent_dim = {latent_dim}")
+        print(f"Training latent_dim = {latent_dim}")
         print("=" * 60 + "\n")
 
-        # Train model
         train(config)
 
-        # Benchmark trained model
-        benchmark_model(config)
+    print("\n--- Benchmarking all latent dims ---\n")
+    config['latent_dims'] = latent_dims
+    benchmark_model(config)
 
     print("\nSweep complete.")
 
