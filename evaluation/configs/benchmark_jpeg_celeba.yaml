@@ -1,0 +1,5 @@
+dataset: celeba
+num_images: 500
+quality_min: 1
+quality_max: 95
+results_dir: ./results/jpeg

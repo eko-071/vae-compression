@@ -44,7 +44,7 @@ def benchmark_lossless(config):
 
     codecs = [
         ('PNG', compress_with_png, lambda b: decompress_png(b)),
-        ('zlib', compress_with_zlib, lambda b: decompress_zlib(b, (1, 3, 32, 32) if dataset == 'cifar10' else (1, 1, 28, 28))),
+        ('zlib', compress_with_zlib, lambda b: decompress_zlib(b, (1, 3, 64, 64) if dataset == 'celeba' else (1, 3, 32, 32) if dataset == 'cifar10' else (1, 1, 28, 28))),
     ]
 
     for codec_name, compress_fn, decompress_fn in codecs:

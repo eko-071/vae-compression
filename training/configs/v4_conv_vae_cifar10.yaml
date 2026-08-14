@@ -4,5 +4,7 @@ latent_dim: 128
 epochs: 30
 batch_size: 128
 learning_rate: 0.0005
+beta: 2
+num_images: 500
 save_dir: ./checkpoints/v4_conv_vae
 results_dir: ./results/v4_conv_vae

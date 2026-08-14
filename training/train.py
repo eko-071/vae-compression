@@ -17,6 +17,7 @@ def vae_loss(reconstructions, images, mu, logvar, beta=1.0):
     recon_loss = nn.functional.binary_cross_entropy(reconstructions,images,reduction='sum') / images.size(0)
     # kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
     kl_loss = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp(),dim=1).mean()
+    kl_loss = kl_loss / logvar.size(1)
     total_loss = recon_loss + beta * kl_loss
     return total_loss, recon_loss, kl_loss
 
